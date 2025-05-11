@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>4-7-4 呼吸タイマー</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    #status {
+      font-size: 2em;
+      margin-top: 20px;
+    }
+    #timer {
+      font-size: 3em;
+      color: #0077cc;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>4-7-4 呼吸タイマー</h1>
+  <button onclick="startBreathing()">スタート</button>
+  <div id="status">準備OK</div>
+  <div id="timer">0</div>
+
+  <script>
+    let context;
+    function playBeep() {
+      if (!context) context = new AudioContext();
+      const osc = context.createOscillator();
+      const gain = context.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1000, context.currentTime);
+      gain.gain.setValueAtTime(0.1, context.currentTime);
+      osc.connect(gain).connect(context.destination);
+      osc.start();
+      osc.stop(context.currentTime + 0.2);
+    }
+
+    function startBreathing() {
+      let status = document.getElementById("status");
+      let timer = document.getElementById("timer");
+      let steps = [
+        { label: "吸う", duration: 4 },
+        { label: "止める", duration: 7 },
+        { label: "吐く", duration: 4 }
+      ];
+      let stepIndex = 0;
+
+      function runStep() {
+        let step = steps[stepIndex];
+        status.textContent = step.label;
+        let count = 0;
+        playBeep();
+        timer.textContent = count + 1;
+        const interval = setInterval(() => {
+          count++;
+          if (count >= step.duration) {
+            clearInterval(interval);
+            stepIndex = (stepIndex + 1) % steps.length;
+            runStep();
+          } else {
+            timer.textContent = count + 1;
+          }
+        }, 1000);
+      }
+
+      runStep(); // 最初からスタート
+    }
+  </script>
+</body>
+</html>
